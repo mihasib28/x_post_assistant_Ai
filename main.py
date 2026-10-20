@@ -23,6 +23,7 @@ DEFAULT_SETTINGS = {
     "topic": "Web3 and crypto community",
     "instruction": "Write a natural, human-sounding X post. Avoid exaggerated claims, spam, and repetitive wording. Keep it concise.",
     "language": "English",
+    "min_chars": 220,
     "max_chars": 260,
     "auto_start": False
 }
@@ -130,9 +131,13 @@ class App:
         ttk.Label(interval_frame, text=" to ").pack(side="left")
         ttk.Entry(interval_frame, textvariable=self.max_var, width=5).pack(side="left")
 
-        ttk.Label(settings, text="Max characters").grid(row=3, column=2, sticky="e", padx=4, pady=4)
+        ttk.Label(settings, text="Min characters").grid(row=4, column=0, sticky="w", padx=4, pady=4)
+        self.min_chars_var = tk.StringVar(value=str(self.settings.get("min_chars", 220)))
+        ttk.Entry(settings, textvariable=self.min_chars_var, width=8).grid(row=4, column=1, sticky="w", padx=4, pady=4)
+
+        ttk.Label(settings, text="Max characters").grid(row=4, column=2, sticky="e", padx=4, pady=4)
         self.max_chars_var = tk.StringVar(value=str(self.settings.get("max_chars", 260)))
-        ttk.Entry(settings, textvariable=self.max_chars_var, width=8).grid(row=3, column=3, sticky="w", padx=4, pady=4)
+        ttk.Entry(settings, textvariable=self.max_chars_var, width=8).grid(row=4, column=3, sticky="w", padx=4, pady=4)
 
         actions = ttk.Frame(outer)
         actions.pack(fill="x", **pad)
@@ -179,11 +184,14 @@ class App:
         try:
             minimum = int(self.min_var.get())
             maximum = int(self.max_var.get())
+            min_chars = int(self.min_chars_var.get())
             max_chars = int(self.max_chars_var.get())
             if minimum < 1 or maximum < minimum:
                 raise ValueError("Interval must be positive, and maximum must be at least minimum.")
-            if max_chars < 50:
-                raise ValueError("Maximum characters should be at least 50.")
+            if min_chars < 220:
+                raise ValueError("Minimum characters should be at least 220.")
+            if max_chars < min_chars:
+                raise ValueError("Maximum characters must be at least the minimum character count.")
             self.samples_path = Path(self.csv_var.get()).expanduser()
             self.settings = {
                 "model": self.model_var.get().strip() or "llama3.2:3b",
@@ -192,6 +200,7 @@ class App:
                 "topic": self.topic_var.get().strip(),
                 "instruction": self.instruction_text.get("1.0", "end").strip(),
                 "language": self.language_var.get(),
+                "min_chars": min_chars,
                 "max_chars": max_chars,
                 "samples_path": str(self.samples_path),
                 "auto_start": False
@@ -247,7 +256,7 @@ class App:
 Topic: {self.settings['topic']}
 Language: {self.settings['language']}
 User instructions: {self.settings['instruction']}
-Maximum length: {self.settings['max_chars']} characters, including spaces.
+Length: {self.settings['min_chars']} to {self.settings['max_chars']} characters, including spaces.
 Use the examples to learn tone and style, not to copy sentences verbatim.
 Avoid repeating recent generated posts. Do not invent project facts, metrics, promises, or financial guarantees.
 Return only the post text, without quotation marks or explanation.
