@@ -1,0 +1,12 @@
+{
+  "model": "llama3.1:8b",
+  "min_minutes": 25,
+  "max_minutes": 35,
+  "topic": "Web3 and crypto community",
+  "instruction": "Write a natural, human-sounding X post. Avoid exaggerated claims, spam, and repetitive wording. Keep it concise.",
+  "language": "English",
+  "min_chars": 230,
+  "max_chars": 260,
+  "samples_path": "C:\\Users\\mihas\\Downloads\\hasib_x_post_assistant\\hasib_x_post_assistant\\samples.csv",
+  "auto_start": false
+}
