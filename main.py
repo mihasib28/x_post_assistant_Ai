@@ -44,7 +44,13 @@ def load_samples(path):
     with path.open("r", encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            text = (row.get("text") or row.get("post") or row.get("sample") or "").strip()
+            # Normalize headers so harmless spacing/case differences (for
+            # example, `id, text`) don't make valid rows disappear.
+            normalized = {
+                (key or "").strip().lower(): value
+                for key, value in row.items()
+            }
+            text = (normalized.get("text") or normalized.get("post") or normalized.get("sample") or "").strip()
             if text:
                 samples.append(text)
     return samples
